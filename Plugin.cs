@@ -80,11 +80,6 @@ namespace DarkSpider.MapTracker
             _trackerController?.Hide(source);
         }
 
-        internal void SwapOnMap(object source, object otherSource)
-        {
-            _trackerController?.SwapCategory(source, otherSource);
-        }
-
         private static bool IsLevelReady()
         {
             try

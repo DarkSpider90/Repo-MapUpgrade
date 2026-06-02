@@ -10,7 +10,6 @@ namespace DarkSpider.MapTracker
     {
         private static readonly FieldInfo EnemyParentEnemyField = AccessTools.Field(typeof(EnemyParent), "Enemy");
         private static readonly FieldInfo EnemyEnemyParentField = AccessTools.Field(typeof(Enemy), "EnemyParent");
-        private static readonly FieldInfo SlowMouthTargetField = AccessTools.Field(typeof(EnemySlowMouth), "playerTarget");
         private static readonly FieldInfo PlayerDisabledField = AccessTools.Field(typeof(PlayerAvatar), "isDisabled");
 
         private static readonly FieldInfo PlayerCosmeticsField = AccessTools.Field(typeof(PlayerAvatar), "playerCosmetics");
@@ -47,22 +46,6 @@ namespace DarkSpider.MapTracker
             catch (Exception exception)
             {
                 Plugin.Log?.LogDebug($"Failed to read Enemy.EnemyParent: {exception.Message}");
-                return null;
-            }
-        }
-
-        internal static PlayerAvatar GetSlowMouthTarget(EnemySlowMouth slowMouth)
-        {
-            if (slowMouth == null)
-                return null;
-
-            try
-            {
-                return SlowMouthTargetField?.GetValue(slowMouth) as PlayerAvatar;
-            }
-            catch (Exception exception)
-            {
-                Plugin.Log?.LogDebug($"Failed to read EnemySlowMouth.playerTarget: {exception.Message}");
                 return null;
             }
         }

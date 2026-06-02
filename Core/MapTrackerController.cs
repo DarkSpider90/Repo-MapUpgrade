@@ -131,39 +131,6 @@ namespace DarkSpider.MapTracker
                 entry.Visible = false;
         }
 
-        internal void SwapCategory(object source, object otherSource)
-        {
-            TrackedMapEntity entry = Find(source);
-            TrackedMapEntity otherEntry = Find(otherSource);
-            if (entry == null || otherEntry == null)
-                return;
-
-            bool entryIsEnemy = _enemyTrackers.Contains(entry);
-            bool otherEntryIsEnemy = _enemyTrackers.Contains(otherEntry);
-
-            if (entryIsEnemy == otherEntryIsEnemy)
-                return;
-
-            if (entryIsEnemy)
-            {
-                _enemyTrackers.Remove(entry);
-                _enemyTrackers.Add(otherEntry);
-                _playerTrackers.Remove(otherEntry);
-                _playerTrackers.Add(entry);
-                entry.IsPlayer = true;
-                otherEntry.IsPlayer = false;
-            }
-            else
-            {
-                _playerTrackers.Remove(entry);
-                _playerTrackers.Add(otherEntry);
-                _enemyTrackers.Remove(otherEntry);
-                _enemyTrackers.Add(entry);
-                entry.IsPlayer = false;
-                otherEntry.IsPlayer = true;
-            }
-        }
-
         internal void SetAllVisible(bool visible)
         {
             SetTrackersVisible(_enemyTrackers, visible);

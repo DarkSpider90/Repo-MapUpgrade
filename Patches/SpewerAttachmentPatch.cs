@@ -12,20 +12,17 @@ namespace DarkSpider.MapTracker.Patches
             if (__instance == null || ___enemy == null)
                 return;
 
-            PlayerAvatar playerTarget = ReflectionCache.GetSlowMouthTarget(__instance);
             EnemyParent enemyParent = ReflectionCache.GetEnemyParent(___enemy);
 
-            if (playerTarget == null || enemyParent == null)
+            if (enemyParent == null)
                 return;
 
             if (__instance.currentState == EnemySlowMouth.State.Attached)
             {
                 Plugin.Instance?.HideFromMap(enemyParent);
-                Plugin.Instance?.SwapOnMap(enemyParent, playerTarget);
             }
             else if (__instance.currentState == EnemySlowMouth.State.Detach)
             {
-                Plugin.Instance?.SwapOnMap(playerTarget, enemyParent);
                 Plugin.Instance?.ShowToMap(enemyParent);
             }
         }
