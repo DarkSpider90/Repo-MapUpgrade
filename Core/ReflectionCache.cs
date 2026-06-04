@@ -10,6 +10,7 @@ namespace DarkSpider.MapTracker
     {
         private static readonly FieldInfo EnemyParentEnemyField = AccessTools.Field(typeof(EnemyParent), "Enemy");
         private static readonly FieldInfo EnemyEnemyParentField = AccessTools.Field(typeof(Enemy), "EnemyParent");
+        private static readonly FieldInfo PlayerLocalField = AccessTools.Field(typeof(PlayerAvatar), "isLocal");
         private static readonly FieldInfo PlayerDisabledField = AccessTools.Field(typeof(PlayerAvatar), "isDisabled");
 
         private static readonly FieldInfo PlayerCosmeticsField = AccessTools.Field(typeof(PlayerAvatar), "playerCosmetics");
@@ -63,6 +64,23 @@ namespace DarkSpider.MapTracker
             catch (Exception exception)
             {
                 Plugin.Log?.LogDebug($"Failed to read PlayerAvatar.isDisabled: {exception.Message}");
+                return false;
+            }
+        }
+
+        internal static bool IsPlayerLocal(PlayerAvatar playerAvatar)
+        {
+            if (playerAvatar == null)
+                return false;
+
+            try
+            {
+                object value = PlayerLocalField?.GetValue(playerAvatar);
+                return value is bool isLocal && isLocal;
+            }
+            catch (Exception exception)
+            {
+                Plugin.Log?.LogDebug($"Failed to read PlayerAvatar.isLocal: {exception.Message}");
                 return false;
             }
         }

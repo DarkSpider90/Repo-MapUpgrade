@@ -116,13 +116,13 @@ namespace DarkSpider.MapTracker
                 case ArrowColorPreset.Orange: return new Color(1f, 0.5f, 0f, 1f);
                 case ArrowColorPreset.Yellow: return Color.yellow;
                 case ArrowColorPreset.Green: return Color.green;
-                case ArrowColorPreset.Cyan: return Color.cyan;
-                case ArrowColorPreset.Blue: return Color.blue;
+                case ArrowColorPreset.Cyan: return new Color(0f, 0.85f, 1f, 1f);
+                case ArrowColorPreset.Blue: return new Color(0.05f, 0.2f, 1f, 1f);
                 case ArrowColorPreset.Purple: return new Color(0.55f, 0f, 1f, 1f);
                 case ArrowColorPreset.Pink: return new Color(1f, 0.1f, 0.65f, 1f);
                 case ArrowColorPreset.White: return Color.white;
                 case ArrowColorPreset.Black: return Color.black;
-                case ArrowColorPreset.Gray: return Color.gray;
+                case ArrowColorPreset.Gray: return new Color(0.28f, 0.28f, 0.28f, 1f);
                 case ArrowColorPreset.CustomHex: return ParseHex(customHex, fallback);
                 default: return fallback;
             }

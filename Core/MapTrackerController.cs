@@ -8,14 +8,11 @@ namespace DarkSpider.MapTracker
 {
     internal sealed class MapTrackerController
     {
-        private const float PlayerSafetyScanInterval = 1f;
-
         private readonly PluginConfig _config;
         private readonly List<TrackedMapEntity> _enemyTrackers = new List<TrackedMapEntity>();
         private readonly List<TrackedMapEntity> _playerTrackers = new List<TrackedMapEntity>();
         private readonly Sprite _arrowSprite;
 
-        private float _nextPlayerSafetyScan;
         private Map _lastMap;
 
         internal MapTrackerController(PluginConfig config)
@@ -31,7 +28,6 @@ namespace DarkSpider.MapTracker
 
             _lastMap = map;
             Clear();
-            _nextPlayerSafetyScan = 0f;
         }
 
         internal void Tick(Map map)
@@ -42,7 +38,6 @@ namespace DarkSpider.MapTracker
             if (_lastMap != map)
                 OnMapAwake(map);
 
-            SafetyScanPlayers();
             UpdateTrackers(_enemyTrackers, isPlayerTracker: false);
             UpdateTrackers(_playerTrackers, isPlayerTracker: true);
         }
@@ -145,25 +140,6 @@ namespace DarkSpider.MapTracker
             _playerTrackers.Clear();
         }
 
-        private void SafetyScanPlayers()
-        {
-            if (!_config.ShowPlayers.Value || Map.Instance == null || Time.time < _nextPlayerSafetyScan)
-                return;
-
-            _nextPlayerSafetyScan = Time.time + PlayerSafetyScanInterval;
-
-            foreach (PlayerAvatar playerAvatar in Object.FindObjectsOfType<PlayerAvatar>())
-            {
-                if (playerAvatar == null || IsLocalPlayer(playerAvatar))
-                    continue;
-
-                Register(playerAvatar);
-
-                if (!IsPlayerDead(playerAvatar))
-                    Show(playerAvatar);
-            }
-        }
-
         private void UpdateTrackers(List<TrackedMapEntity> trackers, bool isPlayerTracker)
         {
             bool enabledByConfig = isPlayerTracker ? _config.ShowPlayers.Value : _config.ShowEnemies.Value;
@@ -185,10 +161,19 @@ namespace DarkSpider.MapTracker
                     continue;
                 }
 
+                if (isPlayerTracker && entry.Source is PlayerAvatar trackedPlayer && IsLocalPlayer(trackedPlayer))
+                {
+                    DestroyTracker(entry);
+                    trackers.RemoveAt(i);
+                    continue;
+                }
+
                 if (Map.Instance.Active)
                     Map.Instance.CustomPositionSet(entry.MapEntity.transform, parent);
 
-                bool alive = !isPlayerTracker || !(entry.Source is PlayerAvatar playerAvatar) || !IsPlayerDead(playerAvatar);
+                bool alive = isPlayerTracker
+                    ? !(entry.Source is PlayerAvatar playerAvatar) || !IsPlayerDead(playerAvatar)
+                    : entry.Source is EnemyParent enemyParent && IsEnemyActive(enemyParent);
                 bool shouldRender = enabledByConfig && entry.Visible && alive;
 
                 Color arrowColor = isPlayerTracker
@@ -198,29 +183,36 @@ namespace DarkSpider.MapTracker
                 float scale = Mathf.Clamp(isPlayerTracker ? _config.PlayerArrowScale.Value : _config.EnemyArrowScale.Value, 0.25f, 3f);
 
                 ApplyRenderer(entry.ArrowRenderer, arrowColor, scale, shouldRender);
-                ApplyOutline(entry.OutlineRenderer, arrowColor.a, scale, shouldRender);
+                ApplyOutline(entry, arrowColor.a, scale, shouldRender);
             }
         }
 
         private void ApplyRenderer(SpriteRenderer renderer, Color color, float scale, bool visible)
         {
+            color.a = 1f;
             renderer.sprite = _arrowSprite;
             renderer.color = color;
             renderer.transform.localScale = Vector3.one * scale;
             renderer.enabled = visible;
         }
 
-        private void ApplyOutline(SpriteRenderer outlineRenderer, float alpha, float mainScale, bool mainVisible)
+        private void ApplyOutline(TrackedMapEntity entry, float alpha, float mainScale, bool mainVisible)
         {
+            SpriteRenderer outlineRenderer = entry.OutlineRenderer;
             if (outlineRenderer == null)
                 return;
 
             Color outlineColor = _config.GetOutlineColor();
-            outlineColor.a = alpha;
+            outlineColor.a = Mathf.Clamp01(alpha);
+
+            float outlineScale = Mathf.Clamp(_config.OutlineScale.Value, 1f, 2f);
+            bool parentAlreadyUsesArrowScale = entry.ArrowRenderer != null &&
+                                               outlineRenderer.transform.parent == entry.ArrowRenderer.transform;
+            float localScale = parentAlreadyUsesArrowScale ? outlineScale : mainScale * outlineScale;
 
             outlineRenderer.sprite = _arrowSprite;
             outlineRenderer.color = outlineColor;
-            outlineRenderer.transform.localScale = Vector3.one * mainScale * Mathf.Clamp(_config.OutlineScale.Value, 1f, 2f);
+            outlineRenderer.transform.localScale = Vector3.one * localScale;
             outlineRenderer.enabled = _config.OutlineEnabled.Value && mainVisible;
         }
 
@@ -319,7 +311,17 @@ namespace DarkSpider.MapTracker
 
         private static bool IsLocalPlayer(PlayerAvatar playerAvatar)
         {
-            return playerAvatar != null && playerAvatar == PlayerController.instance?.playerAvatarScript;
+            return playerAvatar != null &&
+                   (ReflectionCache.IsPlayerLocal(playerAvatar) ||
+                    playerAvatar == PlayerAvatar.instance ||
+                    playerAvatar == PlayerController.instance?.playerAvatarScript);
+        }
+
+        private static bool IsEnemyActive(EnemyParent enemyParent)
+        {
+            return enemyParent != null &&
+                   enemyParent.EnableObject != null &&
+                   enemyParent.EnableObject.activeInHierarchy;
         }
 
         private static bool IsPlayerDead(PlayerAvatar playerAvatar)

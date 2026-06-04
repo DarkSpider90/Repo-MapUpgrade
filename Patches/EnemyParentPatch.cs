@@ -12,6 +12,14 @@ namespace DarkSpider.MapTracker.Patches
             Plugin.Instance?.RegisterToMap(__instance);
         }
 
+        [HarmonyPatch("Spawn")]
+        [HarmonyPostfix]
+        private static void Spawn(EnemyParent __instance)
+        {
+            Plugin.Instance?.RegisterToMap(__instance);
+            Plugin.Instance?.ShowToMap(__instance);
+        }
+
         [HarmonyPatch("SpawnRPC")]
         [HarmonyPostfix]
         private static void SpawnRPC(EnemyParent __instance)
