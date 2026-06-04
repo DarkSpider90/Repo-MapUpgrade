@@ -1,6 +1,6 @@
-# DarkSpider Map Tracker
+# Map Upgrade
 
-Configurable player and enemy map tracker for R.E.P.O.
+Map Upgrade For Viewing The Enemies And Players On The Map
 
 ## Features
 
