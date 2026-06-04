@@ -10,7 +10,6 @@ Configurable player and enemy map tracker for R.E.P.O.
 - Configurable arrow colors, custom hex colors, scale, and outline.
 - Configurable map zoom multiplier.
 - Optional mouse wheel and keyboard zoom controls while the map is open.
-- Hides dead or disabled players until they are revived.
 
 ## Config
 
@@ -31,7 +30,3 @@ Main options:
 ## Install
 
 Install with a mod manager, or copy `MapUpgrade.dll` into your R.E.P.O. BepInEx plugins folder.
-
-## Credits / Inspiration
-
-The original idea was inspired by the map enemy tracker, map player tracker, and map zoom upgrades from MoreUpgrades.

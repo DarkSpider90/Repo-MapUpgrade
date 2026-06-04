@@ -1,0 +1,7 @@
+{
+	"name": "MapUpgrade",
+	"version_number": "1.0.0",
+	"website_url": "https://github.com/DarkSpider90/REPO-MapUpgrade.git",
+	"description": "Show Enemies And Players On The Map.",
+	"dependencies": ["BepInEx-BepInExPack-5.4.2100"]
+}
